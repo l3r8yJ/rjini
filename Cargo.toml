@@ -1,0 +1,10 @@
+[package]
+name = "rjini"
+version = "0.1.0"
+edition = "2021"
+description = "Implementation of Jini library in rust."
+authors = ["Ivanchuk Ivan <l3r8y@duck.com>"]
+license = "MIT"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
