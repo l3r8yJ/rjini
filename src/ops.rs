@@ -4,11 +4,8 @@ use anyhow::Result;
 use itertools::Itertools;
 use std::ops::Add;
 
-/// @todo #1 Harder unit tests.
-/// We have to make our tests as hard as possible.
-///
 /// Creating a new instance of RJini from a XPATH as string.
-impl RJini {
+impl From<&str> for RJini {
     /// It takes a string and returns a RJini object.
     ///
     /// For example:
@@ -25,18 +22,22 @@ impl RJini {
     /// Returns:
     ///
     /// A struct with a body field.
-    pub fn from(xpath: &str) -> Self {
+    fn from(xpath: &str) -> Self {
         RJini {
             xpath: xpath.to_string(),
         }
     }
+}
 
+/// @todo #1 Harder unit tests.
+/// We have to make our tests as hard as possible.
+impl RJini {
     /// It adds a node to the body of the XPATH.
     ///
     /// For example:
     /// ```
     /// use rjini::RJini;
-    /// let j = RJini::from(&"parent/")
+    /// let j = RJini::from("parent/")
     ///     .add_node("child").unwrap()
     ///     .add_node("game").unwrap();
     /// assert!(j.xpath.contains("child/game/"))
