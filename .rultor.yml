@@ -1,6 +1,6 @@
 docker:
   image: yegor256/rultor-image:1.13.0
-credentials: l3r8yJ/home#assets/crates-credentials
+crates-credentials: l3r8yJ/home#assets/crates-credentials
 install: |
   pdd --file=/dev/null
 merge:
@@ -18,5 +18,5 @@ release:
     cargo --color=never fmt --check
     cargo clippy
     git commit -am "${tag}"
-    mkdir -p ~/.cargo && cp ../credentials ~/.cargo
+    mkdir -p ~/.cargo && cp ../crates-credentials ~/.cargo
     cargo --color=never publish
