@@ -13,10 +13,6 @@ jobs:
           tooken: ${{ secrets.CODECOV_TOKEN }}
           toolchain: stable
           override: true
-      - uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.15.0'
-          args: '-- --test-threads 1'
       - uses: codecov/codecov-action@v3
         with:
           fail_ci_if_error: true
