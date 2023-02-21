@@ -11,3 +11,4 @@ license = "MIT"
 crate-type = ["lib"]
 
 [dependencies]
+anyhow = "1.0.69"
