@@ -1,6 +1,6 @@
 [package]
 name = "rjini"
-version = "0.0.0"
+version = "0.0.1"
 edition = "2021"
 description = "Implementation of Jini library in rust."
 authors = ["Ivanchuk Ivan <l3r8y@duck.com>"]
