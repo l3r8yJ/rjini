@@ -18,5 +18,6 @@ release:
     cargo --color=never fmt --check
     cargo clippy
     git commit -am "${tag}"
+    ls -a ../
     mkdir -p ~/.cargo && cp ../credentials ~/.cargo
     cargo --color=never publish
