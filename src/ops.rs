@@ -1,8 +1,8 @@
+use crate::RJini;
 use anyhow::anyhow;
 use anyhow::Result;
-use crate::RJini;
 
-/// Creating a new instance of RJini from a string.
+/// Creating a new instance of RJini from a XPATH as string.
 impl RJini {
     /// It takes a string and returns a RJini object.
     ///
@@ -44,9 +44,7 @@ impl RJini {
     /// A new RJini object with the new body.
     pub fn add_node(&self, node: String) -> Result<RJini> {
         if node.contains(" ") {
-            return Err(anyhow!(format!(
-                "#add_node: The {node} contain spaces"
-            )))
+            return Err(anyhow!(format!("#add_node: The {node} contain spaces")));
         }
         let b = self.body.clone() + &node + "/";
         Ok(RJini { body: b })
