@@ -1,5 +1,4 @@
-// @todo #1 Need to create struct Jini.
-// It has to contain, immutable string as body.
+pub mod jini;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right
