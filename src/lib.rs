@@ -5,8 +5,9 @@ mod ops;
 /// Properties:
 ///
 /// * `body`: The body of the Jini.
+#[derive(Debug)]
 pub struct RJini {
-    pub body: String,
+    pub xpath: String,
 }
 
 /// It's defining a function called `empty` that returns a new `Jini` with an empty body.
@@ -21,11 +22,11 @@ impl RJini {
     /// ```
     /// use rjini::RJini;
     /// let j = RJini::empty();
-    /// assert_eq!("", j.body)
+    /// assert_eq!("", j.xpath)
     /// ```
     pub fn empty() -> Self {
         RJini {
-            body: "".to_string(),
+            xpath: "".to_string(),
         }
     }
 }
@@ -36,6 +37,6 @@ use anyhow::Result;
 #[test]
 fn check_creates_empty_rjini() -> Result<()> {
     let j = RJini::empty();
-    assert_eq!("", j.body);
+    assert_eq!("", j.xpath);
     Ok(())
 }
