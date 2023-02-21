@@ -50,10 +50,10 @@ impl RJini {
     ///
     /// A new RJini object with the new body.
     pub fn add_node(&self, node: &str) -> Result<RJini> {
-        if node.contains(" ") {
+        if node.contains(' ') {
             return Err(anyhow!(format!("#add_node: The \"{node}\" contain spaces")));
         }
-        let b = self.xpath.clone() + &node + "/";
+        let b = self.xpath.clone() + node + "/";
         Ok(RJini { xpath: b })
     }
 
@@ -110,16 +110,15 @@ impl RJini {
     pub fn replace_node(&self, origin: &str, new: &str) -> RJini {
         let x = self
             .xpath
-            .split("/")
+            .split('/')
             .map(|node| {
-                return if String::from(node).eq(origin) {
+                if String::from(node).eq(origin) {
                     new
                 } else {
                     node
-                };
+                }
             })
-            .join("/")
-            .to_string();
+            .join("/");
         RJini { xpath: x }
     }
 }
