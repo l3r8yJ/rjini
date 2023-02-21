@@ -1,3 +1,4 @@
+use std::ops::Add;
 use crate::RJini;
 use anyhow::anyhow;
 use anyhow::Result;
@@ -9,8 +10,8 @@ impl RJini {
     /// For example:
     /// ```
     /// use rjini::RJini;
-    /// let j = RJini::from("parent/child".to_string());
-    /// assert!(j.body.contains("t/c"))
+    /// let j = RJini::from("parent/child");
+    /// assert!(j.xpath.contains("t/c"))
     /// ```
     ///
     /// Arguments:
@@ -20,8 +21,8 @@ impl RJini {
     /// Returns:
     ///
     /// A struct with a body field.
-    pub fn from(xpath: String) -> Self {
-        RJini { body: xpath }
+    pub fn from(xpath: &str) -> Self {
+        RJini { xpath: xpath.to_string() }
     }
 
     /// It adds a node to the body of the XPATH.
@@ -29,10 +30,10 @@ impl RJini {
     /// For example:
     /// ```
     /// use rjini::RJini;
-    /// let j = RJini::from("parent/".to_string())
-    ///     .add_node("child".to_string()).unwrap()
-    ///     .add_node("game".to_string()).unwrap();
-    /// assert!(j.body.contains("child/game/"))
+    /// let j = RJini::from(&"parent/")
+    ///     .add_node("child").unwrap()
+    ///     .add_node("game").unwrap();
+    /// assert!(j.xpath.contains("child/game/"))
     /// ```
     ///
     /// Arguments:
@@ -42,28 +43,69 @@ impl RJini {
     /// Returns:
     ///
     /// A new RJini object with the new body.
-    pub fn add_node(&self, node: String) -> Result<RJini> {
+    pub fn add_node(&self, node: &str) -> Result<RJini> {
         if node.contains(" ") {
             return Err(anyhow!(format!("#add_node: The {node} contain spaces")));
         }
-        let b = self.body.clone() + &node + "/";
-        Ok(RJini { body: b })
+        let b = self.xpath.clone() + &node + "/";
+        Ok(RJini { xpath: b })
+    }
+
+    /// It removes a node from the XPATH.
+    ///
+    /// For example:
+    /// ```
+    /// use rjini::RJini;
+    /// let j = RJini::empty()
+    ///     .add_node("parent").unwrap()
+    ///     .add_node("child").unwrap()
+    ///     .add_node("toy").unwrap();
+    /// assert!(j.xpath.contains("child"));
+    /// let j = j.remove_node("child");
+    /// assert!(!j.xpath.contains("child"))
+    /// ```
+    ///
+    /// Arguments:
+    ///
+    /// * `node`: The node to remove.
+    ///
+    /// Returns:
+    ///
+    /// A new RJini object with the XPATH of the old one but with the node removed.
+    pub fn remove_node(&self, node: &str) -> RJini {
+        let b = self.xpath.replace(&node.to_string().add("/"), "");
+        RJini {
+            xpath: b
+        }
     }
 }
 
 #[test]
 fn checks_creates_rjini_from() -> Result<()> {
-    let j = RJini::from("parent/child".to_string());
-    assert!(j.body.contains("child"));
+    let j = RJini::from("parent/child");
+    assert!(j.xpath.contains("child"));
     Ok(())
 }
 
 #[test]
-fn checks_adds_a_node() -> Result<()> {
-    let j = RJini::from("parent/".to_string());
-    let j = j.add_node("child".to_string())?;
-    let j = j.add_node("toys".to_string())?;
-    println!("{}", j.body);
-    assert!(j.body.contains("child/") && j.body.contains("toys/"));
+fn checks_adds_node() -> Result<()> {
+    let j = RJini::from("parent/");
+    let j = j.add_node("child")?;
+    let j = j.add_node("toys")?;
+    println!("{}", j.xpath);
+    assert!(j.xpath.contains("child/") && j.xpath.contains("toys/"));
+    Ok(())
+}
+
+#[test]
+fn checks_removes_node() -> Result<()> {
+    let j = RJini::empty()
+        .add_node("Ruby")?
+        .add_node("is")?
+        .add_node("not")?
+        .add_node("my")?
+        .add_node("dog")?
+        .remove_node("not");
+    assert_eq!("Ruby/is/my/dog/", j.xpath);
     Ok(())
 }
