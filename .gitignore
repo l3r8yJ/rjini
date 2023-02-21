@@ -1,5 +1,5 @@
-/target
+.idea/
+target/
+*.relf
 /Cargo.lock
-
-.idea
 **/.DS_Store
