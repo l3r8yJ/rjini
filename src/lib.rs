@@ -5,6 +5,7 @@ mod ops;
 /// Properties:
 ///
 /// * `body`: The body of the Jini.
+#[derive(Debug)]
 pub struct RJini {
     pub xpath: String,
 }
