@@ -12,4 +12,3 @@ crate-type = ["lib"]
 
 [dependencies]
 anyhow = "1.0.69"
-itertools = "0.10.5"

@@ -1,7 +1,6 @@
 use crate::RJini;
 use anyhow::anyhow;
 use anyhow::Result;
-use itertools::Itertools;
 use std::ops::Add;
 use std::panic::Location;
 
@@ -109,17 +108,7 @@ impl RJini {
     /// A new RJini object with the xpath replaced.
     pub fn replace_node(&self, origin: &str, new: &str) -> Result<RJini> {
         validate(new)?;
-        let x = self
-            .xpath
-            .split('/')
-            .map(|node| {
-                if String::from(node).eq(origin) {
-                    new
-                } else {
-                    node
-                }
-            })
-            .join("/");
+        let x = self.xpath.replace(origin, new);
         Ok(RJini { xpath: x })
     }
 }
