@@ -51,7 +51,7 @@ impl RJini {
     ///
     /// A new RJini object with the new body.
     pub fn add_node(&self, node: &str) -> Result<RJini> {
-        validate(node)?;
+        Self::validate(node)?;
         let b = self.xpath.clone() + node + "/";
         Ok(RJini { xpath: b })
     }
@@ -107,29 +107,29 @@ impl RJini {
     ///
     /// A new RJini object with the xpath replaced.
     pub fn replace_node(&self, origin: &str, new: &str) -> Result<RJini> {
-        validate(new)?;
+        Self::validate(new)?;
         let x = self.xpath.replace(origin, new);
         Ok(RJini { xpath: x })
     }
-}
 
-/// It checks if the node contains spaces.
-///
-/// Arguments:
-///
-/// * `node`: The name of the node to add.
-///
-/// Returns:
-///
-/// Result<()>
-fn validate(node: &str) -> Result<()> {
-    let location = Location::caller();
-    if node.contains(' ') {
-        return Err(anyhow!(format!(
+    /// It checks if the node contains spaces.
+    ///
+    /// Arguments:
+    ///
+    /// * `node`: The name of the node to validate.
+    ///
+    /// Returns:
+    ///
+    /// Result<()>
+    fn validate(node: &str) -> Result<()> {
+        let location = Location::caller();
+        if node.contains(' ') {
+            return Err(anyhow!(format!(
             "{location}: The \"{node}\" contain spaces"
         )));
+        }
+        Ok(())
     }
-    Ok(())
 }
 
 #[test]
