@@ -3,6 +3,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use itertools::Itertools;
 use std::ops::Add;
+use std::panic::Location;
 
 /// Creating a new instance of RJini from a XPATH as string.
 impl From<&str> for RJini {
@@ -21,7 +22,7 @@ impl From<&str> for RJini {
     ///
     /// Returns:
     ///
-    /// A struct with a body field.
+    /// A struct with a XPATH field.
     fn from(xpath: &str) -> Self {
         RJini {
             xpath: xpath.to_string(),
@@ -51,9 +52,7 @@ impl RJini {
     ///
     /// A new RJini object with the new body.
     pub fn add_node(&self, node: &str) -> Result<RJini> {
-        if node.contains(' ') {
-            return Err(anyhow!(format!("#add_node: The \"{node}\" contain spaces")));
-        }
+        validate(node)?;
         let b = self.xpath.clone() + node + "/";
         Ok(RJini { xpath: b })
     }
@@ -95,7 +94,7 @@ impl RJini {
     ///         .add_node("a").unwrap()
     ///         .add_node("bad").unwrap()
     ///         .add_node("dog").unwrap()
-    ///         .replace_node("bad", "good")
+    ///         .replace_node("bad", "good").unwrap()
     ///         .xpath;
     /// assert_eq!("Ruby/is/a/good/dog/", j);
     /// ```
@@ -108,7 +107,8 @@ impl RJini {
     /// Returns:
     ///
     /// A new RJini object with the xpath replaced.
-    pub fn replace_node(&self, origin: &str, new: &str) -> RJini {
+    pub fn replace_node(&self, origin: &str, new: &str) -> Result<RJini> {
+        validate(new)?;
         let x = self
             .xpath
             .split('/')
@@ -120,8 +120,27 @@ impl RJini {
                 }
             })
             .join("/");
-        RJini { xpath: x }
+        Ok(RJini { xpath: x })
     }
+}
+
+/// It checks if the node contains spaces.
+///
+/// Arguments:
+///
+/// * `node`: The name of the node to add.
+///
+/// Returns:
+///
+/// Result<()>
+fn validate(node: &str) -> Result<()> {
+    let location = Location::caller();
+    if node.contains(' ') {
+        return Err(anyhow!(format!(
+            "{location}: The \"{node}\" contain spaces"
+        )));
+    }
+    Ok(())
 }
 
 #[test]
@@ -150,7 +169,7 @@ fn checks_error_on_add_wrong_node() -> Result<()> {
             .unwrap_err()
             .root_cause()
     );
-    assert!(actual.contains("#add_node: The"));
+    assert!(actual.contains("The \"so me no de\" contain spaces"));
     Ok(())
 }
 
@@ -175,8 +194,22 @@ fn checks_replaces_node() -> Result<()> {
         .add_node("a")?
         .add_node("bad")?
         .add_node("dog")?
-        .replace_node("bad", "good")
+        .replace_node("bad", "good")?
         .xpath;
     assert_eq!("Ruby/is/a/good/dog/", j);
+    Ok(())
+}
+
+#[test]
+fn checks_error_on_replaces_node() -> Result<()> {
+    let actual = format!(
+        "{}",
+        RJini::empty()
+            .add_node("test")?
+            .replace_node("test", "not test")
+            .unwrap_err()
+            .root_cause()
+    );
+    assert!(actual.contains("The \"not test\" contain spaces"));
     Ok(())
 }
