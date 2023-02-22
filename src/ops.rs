@@ -112,6 +112,28 @@ impl RJini {
         Ok(RJini { xpath: x })
     }
 
+    /// It splits the xpath string into a vector of strings.
+    ///
+    /// For example:
+    /// ```
+    /// use rjini::RJini;
+    /// let x = RJini::from("parent/child[@key=\"value\"]/next[3]");
+    /// assert_eq!(
+    ///     vec!["parent", "child[@key=\"value\"]", "next[3]"],
+    ///     x.nodes().unwrap()
+    /// )
+    /// ```
+    /// Returns:
+    ///
+    /// A vector of strings.
+    pub fn nodes(&self) -> Result<Vec<&str>> {
+        Ok(
+            regex::Regex::new(r"(//|/)")?
+                .split(&self.xpath)
+                .collect()
+        )
+    }
+
     /// It checks if the node contains spaces.
     ///
     /// Arguments:
@@ -200,5 +222,15 @@ fn checks_error_on_replaces_node() -> Result<()> {
             .root_cause()
     );
     assert!(actual.contains("The \"not test\" contain spaces"));
+    Ok(())
+}
+
+#[test]
+fn checks_does_nodes() -> Result<()> {
+    let x = RJini::from("parent/child[@key=\"value\"]/next[3]");
+    assert_eq!(
+        vec!["parent", "child[@key=\"value\"]", "next[3]"],
+        x.nodes()?
+    );
     Ok(())
 }

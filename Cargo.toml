@@ -12,3 +12,5 @@ crate-type = ["lib"]
 
 [dependencies]
 anyhow = "1.0.69"
+regex = "1.7.1"
+itertools = "0.10.5"
