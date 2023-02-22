@@ -127,11 +127,7 @@ impl RJini {
     ///
     /// A vector of strings.
     pub fn nodes(&self) -> Result<Vec<&str>> {
-        Ok(
-            regex::Regex::new(r"(//|/)")?
-                .split(&self.xpath)
-                .collect()
-        )
+        Ok(regex::Regex::new(r"(//|/)")?.split(&self.xpath).collect())
     }
 
     /// It checks if the node contains spaces.
@@ -147,8 +143,8 @@ impl RJini {
         let location = Location::caller();
         if node.contains(' ') {
             return Err(anyhow!(format!(
-            "{location}: The \"{node}\" contain spaces"
-        )));
+                "{location}: The \"{node}\" contain spaces"
+            )));
         }
         Ok(())
     }
