@@ -130,6 +130,56 @@ impl RJini {
         Ok(regex::Regex::new(r"(//|/)")?.split(&self.xpath).collect())
     }
 
+    /// `add_property` adds a property to the current XPATH
+    ///
+    /// For example:
+    /// ```
+    /// use rjini::RJini;
+    /// let j = RJini::from("parent/child/")
+    ///     .add_property("p").unwrap();
+    /// assert!(j.xpath.contains("p()"))
+    /// ```
+    /// Arguments:
+    ///
+    /// * `property`: The name of the property to add.
+    ///
+    /// Returns:
+    ///
+    /// A Result<RJini>
+    pub fn add_property(&self, property: &str) -> Result<RJini> {
+        Self::validate(&property)?;
+        Ok(Self::add_node(
+            self,
+            &(String::from(property) + "()").as_str(),
+        )?)
+    }
+
+    /// Removes a property from the current XPATH
+    ///
+    /// For example:
+    /// ```
+    /// use rjini::RJini;
+    /// let j = RJini::from("parent/child/property()");
+    /// assert!(
+    ///     "parent/child/".eq(j.remove_property("property").xpath.as_str())
+    /// );
+    /// ```
+    ///
+    /// Arguments:
+    ///
+    /// * `property`: The property to remove.
+    ///
+    /// Returns:
+    ///
+    /// A new RJini object with the property removed from the xpath.
+    pub fn remove_property(&self, property: &str) -> RJini {
+        let x = self
+            .xpath
+            .clone()
+            .replace((String::from(property) + "()").as_str(), "");
+        RJini { xpath: x }
+    }
+
     /// It checks if the node contains spaces.
     ///
     /// Arguments:
@@ -228,5 +278,21 @@ fn checks_does_nodes() -> Result<()> {
         vec!["parent", "child[@key=\"value\"]", "next[3]"],
         x.nodes()?
     );
+    Ok(())
+}
+
+#[test]
+fn checks_adds_property() -> Result<()> {
+    let x = RJini::from("some/xpath/");
+    assert!(x.add_property("pr")?.xpath.contains("pr()"));
+    Ok(())
+}
+
+#[test]
+fn checks_removes_property() -> Result<()> {
+    let x = RJini::from("some/xpath/");
+    assert!(x.add_property("pr")?.xpath.contains("pr()"));
+    let x = x.remove_property("pr").xpath;
+    assert!(!x.contains("pr"));
     Ok(())
 }
