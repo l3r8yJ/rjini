@@ -3,6 +3,7 @@ use anyhow::anyhow;
 use anyhow::Result;
 use std::ops::Add;
 use std::panic::Location;
+use regex::Regex;
 
 /// Creating a new instance of RJini from a XPATH as string.
 impl From<&str> for RJini {
@@ -180,6 +181,22 @@ impl RJini {
         RJini { xpath: x }
     }
 
+    /// > This function adds an attribute to the xpath
+    ///
+    /// Arguments:
+    ///
+    /// * `key`: The attribute name
+    /// * `value`: The value of the attribute.
+    ///
+    /// Returns:
+    ///
+    /// A new RJini object with the new xpath.
+    pub fn add_attr(&self, key: &str, value: &str) -> Result<RJini> {
+        let attr = format!("[@{key}=\"{value}\"]");
+        Self::validate_attr(attr.as_str())?;
+        Ok(RJini { xpath: self.xpath.clone() + attr.as_str(), })
+    }
+
     /// It checks if the node contains spaces.
     ///
     /// Arguments:
@@ -190,15 +207,35 @@ impl RJini {
     ///
     /// Result<()>
     fn validate(node: &str) -> Result<()> {
-        let location = Location::caller();
+        let loc = Location::caller();
         if node.contains(' ') {
             return Err(anyhow!(format!(
-                "{location}: The \"{node}\" contain spaces"
+                "{loc}: The \"{node}\" contain spaces"
             )));
         }
         Ok(())
     }
-}
+
+    /// It validates the attribute string
+    ///
+    /// Arguments:
+    ///
+    /// * `attr`: The attribute to be validated.
+    ///
+    /// Returns:
+    ///
+    /// A Result<()>
+    fn validate_attr(attr : &str) -> Result<()> {
+        let r = Regex::new(r#"^\[@\w+\s*=\s*("[^"]+"|'[^']+')\]$"#)?;
+        let loc = Location::caller();
+        if !r.is_match(attr) {
+            return Err(anyhow!(format!(
+                "{loc}: The '{attr}' not valid, check it please!"
+            )));
+        }
+        Ok(())
+    }
+ }
 
 #[test]
 fn checks_creates_rjini_from() -> Result<()> {
@@ -294,5 +331,14 @@ fn checks_removes_property() -> Result<()> {
     assert!(x.add_property("pr")?.xpath.contains("pr()"));
     let x = x.remove_property("pr").xpath;
     assert!(!x.contains("pr"));
+    Ok(())
+}
+
+#[test]
+fn checks_adds_attr() -> Result<()> {
+    let j = RJini::from("some/xpath/")
+        .add_attr("key", "val")?
+        .xpath;
+    assert_eq!("some/xpath[@key=\"val\"]", j);
     Ok(())
 }
