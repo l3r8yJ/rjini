@@ -187,7 +187,7 @@ impl RJini {
         RJini { xpath: x }
     }
 
-    /// Removes a property from the current XPATH
+    /// Represents RJini as string.
     ///
     /// For example:
     /// ```
