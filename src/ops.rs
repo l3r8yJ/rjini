@@ -1,8 +1,11 @@
-use crate::RJini;
-use anyhow::anyhow;
-use anyhow::Result;
 use std::ops::Add;
 use std::panic::Location;
+
+use anyhow::anyhow;
+use anyhow::Result;
+use regex::Regex;
+
+use crate::RJini;
 
 /// Creating a new instance of RJini from a XPATH as string.
 impl From<&str> for RJini {
@@ -127,7 +130,11 @@ impl RJini {
     ///
     /// A vector of strings.
     pub fn nodes(&self) -> Result<Vec<&str>> {
-        Ok(regex::Regex::new(r"(//|/)")?.split(&self.xpath).collect())
+        let regex = Regex::new(r"(//|/)")?;
+        Ok(regex
+            .split(&self.xpath)
+            .filter(|node| !node.is_empty())
+            .collect())
     }
 
     /// `add_property` adds a property to the current XPATH
@@ -180,6 +187,21 @@ impl RJini {
         RJini { xpath: x }
     }
 
+    /// Removes a property from the current XPATH
+    ///
+    /// For example:
+    /// ```
+    /// use rjini::RJini;
+    /// let j = RJini::from("parent/child/property()");
+    /// assert_eq!(j.as_str(), "parent/child/property()");
+    /// ```
+    /// Returns:
+    ///
+    /// A rjini's xpath represented as string.
+    pub fn as_str(&self) -> &str {
+        self.xpath.as_str()
+    }
+
     /// It checks if the node contains spaces.
     ///
     /// Arguments:
@@ -208,11 +230,17 @@ fn checks_creates_rjini_from() -> Result<()> {
 }
 
 #[test]
+fn creates_rjini_from_complex_xpath() -> Result<()> {
+    let rj = RJini::from("/bookstore/book[price>35]/price");
+    assert_eq!(vec!["bookstore", "book[price>35]", "price"], rj.nodes()?);
+    Ok(())
+}
+
+#[test]
 fn checks_adds_node() -> Result<()> {
     let j = RJini::from("parent/");
     let j = j.add_node("child")?;
     let j = j.add_node("toys")?;
-    println!("{}", j.xpath);
     assert!(j.xpath.contains("child/") && j.xpath.contains("toys/"));
     Ok(())
 }
