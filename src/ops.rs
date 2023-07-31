@@ -187,6 +187,33 @@ impl RJini {
         RJini { xpath: x }
     }
 
+    /// Adds attr to xpath.
+    ///
+    /// For example:
+    /// ```
+    /// use rjini::RJini;
+    /// let mut j = RJini::from("parent/child")
+    ///     .add_attr("k", "v")
+    ///     .unwrap();
+    /// assert_eq!(j.as_str(), "parent/child[k=\"v\"]");
+    /// ```
+    ///
+    /// Arguments:
+    ///
+    /// * `key`: The attr key.
+    ///
+    /// * `value`: The attr value.
+    ///
+    /// Returns:
+    ///
+    /// A new RJini object with the new attr.
+    pub fn add_attr(&self, key: &str, value: &str) -> Result<RJini> {
+        let node = format!("[{}=\"{}\"]", key, value);
+        Self::validate(node.as_str())?;
+        let x = self.xpath.clone() + node.as_str();
+        Ok(RJini { xpath: x })
+    }
+
     /// Represents RJini as string.
     ///
     /// For example:
@@ -322,5 +349,13 @@ fn checks_removes_property() -> Result<()> {
     assert!(x.add_property("pr")?.xpath.contains("pr()"));
     let x = x.remove_property("pr").xpath;
     assert!(!x.contains("pr"));
+    Ok(())
+}
+
+#[test]
+fn adds_new_attr() -> Result<()> {
+    let mut rj = RJini::from("parent/child");
+    rj = rj.add_attr("k", "v")?;
+    assert_eq!(rj.as_str(), "parent/child[k=\"v\"]");
     Ok(())
 }
