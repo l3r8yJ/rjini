@@ -354,8 +354,7 @@ fn checks_removes_property() -> Result<()> {
 
 #[test]
 fn adds_new_attr() -> Result<()> {
-    let mut rj = RJini::from("parent/child");
-    rj = rj.add_attr("k", "v")?;
+    let rj = RJini::from("parent/child").add_attr("k", "v")?;
     assert_eq!(rj.as_str(), "parent/child[k=\"v\"]");
     Ok(())
 }
