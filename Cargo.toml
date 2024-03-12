@@ -11,6 +11,6 @@ license = "MIT"
 crate-type = ["lib"]
 
 [dependencies]
-anyhow = "1.0.75"
+anyhow = "1.0.81"
 regex = "1.9.5"
 itertools = "0.11.0"
